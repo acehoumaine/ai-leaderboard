@@ -1,57 +1,53 @@
 # AI Model Leaderboard
 
-This project is a web app for displaying and managing a leaderboard of AI models. It uses Next.js, React, Tailwind CSS, and Supabase for the backend database.
+A simple, modern leaderboard for comparing top AI models by intelligence, speed, cost efficiency, and more. Filter and search by company or model name. Data is synced from Artificial Analysis.
+
+---
+
+**Why?**
+> As a tech sales professional, this is my humble (and slightly desperate) attempt to revive my engineering background. If it works, great. If not, at least I tried.
+
+---
 
 ## Features
-- View a ranked list of AI models with scores for different metrics
-- Filter and sort by metrics like Overall Intelligence, Speed, Cost Efficiency, and Coding
-- Add new models through a simple admin interface (/admin)
-- Responsive design with dark mode support
+- See and compare the latest AI models
+- Filter by company (OpenAI, Anthropic, Google, etc.)
+- Search for models or companies
+- Sort by intelligence, speed, cost efficiency, or coding
+- Data is always up to date (syncs from Artificial Analysis)
 
-## Setup
+## Quick Start
 1. **Install dependencies:**
    ```bash
    npm install
    # or
    yarn install
    ```
-2. **Set up environment variables:**
-   - Create a `.env.local` file in the project root:
-     ```
-     NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-     ```
-   - Never commit your real keys to public repos.
-3. **Run the development server:**
+2. **Set up your environment:**
+   - Copy `.env.local.example` to `.env.local` and add your Supabase and Artificial Analysis API keys.
+3. **Run the app:**
    ```bash
    npm run dev
    # or
    yarn dev
    ```
-4. **Open your browser:**
-   Go to [http://localhost:3000](http://localhost:3000) for the leaderboard, or [http://localhost:3000/admin](http://localhost:3000/admin) to add models.
-
-## Usage
-- The homepage shows the leaderboard. Use the buttons to sort by different metrics.
-- The admin page lets you add new models with all required fields.
-
-## Security & Best Practices
-- All database credentials are stored in environment variables and never exposed in the codebase.
-- All user input is validated on the client before being sent to the database.
-- Errors are caught and displayed to the user.
-- The Supabase anon key is for public, non-privileged access only. For sensitive operations, use RLS (Row Level Security) and server-side logic.
-
-## Security Note
-
-- Never commit real secrets, API keys, or admin credentials to a public repo.
-- Always use environment variables (like `.env.local`) for all secrets and credentials.
-- The admin credentials for this project are loaded from `.env.local` as `ADMIN_USERNAME` and `ADMIN_PASSWORD`.
-- If you deploy this project, set strong, unique credentials and keep your repo private if you use real data or access.
+4. **Visit:**
+   - Home: [http://localhost:3000](http://localhost:3000)
+   - Admin (sync data): [http://localhost:3000/admin]
 
 ## Tech Stack
-- Next.js
+- Next.js (App Router)
 - React
 - Tailwind CSS
-- Supabase
+- Supabase (Postgres)
+
+## Security
+- No secrets or credentials are committed to the repo.
+- All keys are loaded from `.env.local`.
+- Admin login is required to sync data.
+
+---
+
+**Built for fun, learning, and a little bit of professional redemption.**
 
 
