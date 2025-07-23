@@ -110,16 +110,16 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-12">
-      <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-2 sm:px-4 py-8 sm:py-12">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
         AI Model Leaderboard
       </h1>
-      <div className="mb-6 flex flex-wrap gap-3 justify-center">
+      <div className="mb-4 sm:mb-6 flex flex-wrap gap-2 sm:gap-3 justify-center">
         {metrics.map((metric) => (
           <button
             key={metric.key}
             aria-label={`Sort by ${metric.menuLabel}`}
-            className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border text-xs sm:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400
               ${selectedMetric === metric.key
                 ? "bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:text-white"
                 : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-blue-900"}
@@ -130,11 +130,11 @@ export default function Home() {
           </button>
         ))}
       </div>
-      <div className="mb-4 flex flex-wrap gap-3 items-center justify-center w-full max-w-2xl">
+      <div className="mb-3 sm:mb-4 flex flex-wrap gap-2 sm:gap-3 items-center justify-center w-full max-w-2xl">
         <select
           value={selectedCompany}
           onChange={e => { setSelectedCompany(e.target.value); setPage(1); }}
-          className="px-3 py-2 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          className="px-2 sm:px-3 py-1.5 sm:py-2 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs sm:text-sm"
         >
           <option value="">All Companies</option>
           {companyOptions.map((company) => (
@@ -146,7 +146,7 @@ export default function Home() {
           placeholder="Search models or companies..."
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
-          className="px-3 py-2 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 w-64"
+          className="px-2 sm:px-3 py-1.5 sm:py-2 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 w-40 sm:w-64 text-xs sm:text-sm"
         />
         {selectedCompany && (
           <button
@@ -157,14 +157,14 @@ export default function Home() {
           </button>
         )}
       </div>
-      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
-        <table className="w-full text-left">
+      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-x-auto">
+        <table className="w-full text-left text-xs sm:text-sm">
           <thead className="bg-gray-100 dark:bg-gray-800">
             <tr>
-              <th className="py-4 px-6 text-sm font-semibold tracking-wide">#</th>
-              <th className="py-4 px-6 text-sm font-semibold tracking-wide">Model Name</th>
-              <th className="py-4 px-6 text-sm font-semibold tracking-wide">Company</th>
-              <th className="py-4 px-6 text-sm font-semibold tracking-wide text-right">
+              <th className="py-3 sm:py-4 px-3 sm:px-6 font-semibold tracking-wide">#</th>
+              <th className="py-3 sm:py-4 px-3 sm:px-6 font-semibold tracking-wide">Model Name</th>
+              <th className="py-3 sm:py-4 px-3 sm:px-6 font-semibold tracking-wide">Company</th>
+              <th className="py-3 sm:py-4 px-3 sm:px-6 font-semibold tracking-wide text-right">
                 {metrics.find(m => m.key === selectedMetric)?.tableLabel}
               </th>
             </tr>
@@ -172,67 +172,69 @@ export default function Home() {
           <tbody>
             {paginatedModels.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-8 px-6 text-center text-gray-500 dark:text-gray-400" aria-live="polite">
+                <td colSpan={4} className="py-6 sm:py-8 px-3 sm:px-6 text-center text-gray-500 dark:text-gray-400" aria-live="polite">
                   No models found.
                 </td>
               </tr>
             ) : (
-              paginatedModels.map((model, idx) => (
-                <tr
-                  key={model.id}
-                  className={
-                    `${idx % 2 === 0
-                      ? "bg-white dark:bg-gray-900"
-                      : "bg-gray-50 dark:bg-gray-800"} transition-colors hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800`}
-                >
-                  <td className="py-4 px-6 font-mono text-gray-500 dark:text-gray-400">{(page - 1) * PAGE_SIZE + idx + 1}</td>
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-white">{model.name}</td>
-                  <td className="py-4 px-6 text-gray-700 dark:text-gray-300">
-                    <button
-                      className="underline hover:text-blue-600 dark:hover:text-blue-400"
-                      onClick={() => handleCompanyClick(model.company)}
-                    >
-                      {model.company}
-                    </button>
-                  </td>
-                  <td className="py-4 px-6 text-right font-bold text-blue-600 dark:text-blue-400">
-                    {selectedMetric === "overall_intelligence"
-                      ? (model.overall_intelligence !== undefined && model.overall_intelligence !== null
-                          ? Number(model.overall_intelligence).toFixed(1)
-                          : <span className="text-gray-400">N/A</span>)
-                      : (model.benchmark_scores && model.benchmark_scores[selectedMetric] !== undefined && model.benchmark_scores[selectedMetric] !== null
-                          ? Number(model.benchmark_scores[selectedMetric]).toFixed(1)
-                          : <span className="text-gray-400">N/A</span>)}
-                  </td>
-                </tr>
-              ))
+              <>
+                {paginatedModels.map((model, idx) => (
+                  <tr
+                    key={model.id}
+                    className={
+                      `${idx % 2 === 0
+                        ? "bg-white dark:bg-gray-900"
+                        : "bg-gray-50 dark:bg-gray-800"} transition-colors hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800`}
+                  >
+                    <td className="py-3 sm:py-4 px-3 sm:px-6 font-mono text-gray-500 dark:text-gray-400">{(page - 1) * PAGE_SIZE + idx + 1}</td>
+                    <td className="py-3 sm:py-4 px-3 sm:px-6 font-medium text-gray-900 dark:text-white">{model.name}</td>
+                    <td className="py-3 sm:py-4 px-3 sm:px-6 text-gray-700 dark:text-gray-300">
+                      <button
+                        className="underline hover:text-blue-600 dark:hover:text-blue-400"
+                        onClick={() => handleCompanyClick(model.company)}
+                      >
+                        {model.company}
+                      </button>
+                    </td>
+                    <td className="py-3 sm:py-4 px-3 sm:px-6 text-right font-bold text-blue-600 dark:text-blue-400">
+                      {selectedMetric === "overall_intelligence"
+                        ? (model.overall_intelligence !== undefined && model.overall_intelligence !== null
+                            ? Number(model.overall_intelligence).toFixed(1)
+                            : <span className="text-gray-400">N/A</span>)
+                        : (model.benchmark_scores && model.benchmark_scores[selectedMetric] !== undefined && model.benchmark_scores[selectedMetric] !== null
+                            ? Number(model.benchmark_scores[selectedMetric]).toFixed(1)
+                            : <span className="text-gray-400">N/A</span>)}
+                    </td>
+                  </tr>
+                ))}
+              </>
             )}
           </tbody>
         </table>
       </div>
       {/* Pagination controls */}
       {totalPages > 1 && (
-        <div className="flex gap-2 mt-6 items-center justify-center">
+        <div className="flex gap-1 sm:gap-2 mt-4 sm:mt-6 items-center justify-center">
           <button
             onClick={() => handlePageChange(page - 1)}
             disabled={page === 1}
-            className="px-3 py-1 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50"
+            className="px-2 sm:px-3 py-1 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50 text-xs sm:text-sm"
           >
             Previous
           </button>
-          <span className="text-sm text-gray-700 dark:text-gray-200">
+          <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-200">
             Page {page} of {totalPages}
           </span>
           <button
             onClick={() => handlePageChange(page + 1)}
             disabled={page === totalPages}
-            className="px-3 py-1 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50"
+            className="px-2 sm:px-3 py-1 rounded border bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 disabled:opacity-50 text-xs sm:text-sm"
           >
             Next
           </button>
         </div>
       )}
-      <footer className="mt-10 text-xs text-gray-500 dark:text-gray-400 text-center">
+      <footer className="mt-8 sm:mt-10 text-xs text-gray-500 dark:text-gray-400 text-center">
         &copy; {new Date().getFullYear()} AI Leaderboard. All rights reserved.
       </footer>
     </div>

@@ -1,0 +1,8 @@
+{
+  "cron": [
+    {
+      "path": "/api/scrape-artificial-analysis",
+      "schedule": "0 6 * * *"
+    }
+  ]
+} 

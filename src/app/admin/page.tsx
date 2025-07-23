@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (status === "unauthenticated") {
@@ -24,9 +26,6 @@ export default function AdminPage() {
   if (status === "unauthenticated") {
     return null;
   }
-
-  const [syncing, setSyncing] = useState(false);
-  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
   // Sync data from Artificial Analysis
   const handleSync = async () => {
