@@ -1,5 +1,5 @@
 // Syncs AI models from Artificial Analysis API to Supabase ai_models table
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 import type { BenchmarkScores } from '../../../../lib/types';
 
