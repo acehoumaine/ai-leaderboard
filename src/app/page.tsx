@@ -1,28 +1,70 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 
-const categories = ["All", "Coding", "Writing", "Reasoning", "Multimodal"];
-
-const models = [
-  { name: "GPT-4o", company: "OpenAI", score: 99, category: "Multimodal" },
-  { name: "Claude 3 Opus", company: "Anthropic", score: 97, category: "Reasoning" },
-  { name: "Gemini 1.5 Pro", company: "Google", score: 95, category: "Multimodal" },
-  { name: "Llama 3 70B", company: "Meta", score: 92, category: "Reasoning" },
-  { name: "Mistral Large", company: "Mistral AI", score: 89, category: "Reasoning" },
-  { name: "GPT-4 Turbo", company: "OpenAI", score: 88, category: "Writing" },
-  { name: "Claude 3 Sonnet", company: "Anthropic", score: 87, category: "Writing" },
-  { name: "Gemini 1.0 Ultra", company: "Google", score: 85, category: "Coding" },
-  { name: "Llama 2 70B", company: "Meta", score: 83, category: "Coding" },
+// Define the metrics available for sorting/filtering
+const metrics = [
+  { key: "overall_intelligence", label: "Overall Intelligence" },
+  { key: "speed", label: "Speed" },
+  { key: "cost_efficiency", label: "Cost Efficiency" },
+  { key: "coding", label: "Coding" },
 ];
 
-export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+// Type for the AI model
+interface AIModel {
+  id: string;
+  name: string;
+  company: string;
+  description?: string;
+  last_updated?: string;
+  overall_intelligence: number;
+  benchmark_scores: {
+    speed?: number;
+    cost_efficiency?: number;
+    coding?: number;
+    reasoning?: number;
+    [key: string]: number | undefined;
+  };
+}
 
-  const filteredModels =
-    selectedCategory === "All"
-      ? models
-      : models.filter((model) => model.category === selectedCategory);
+export default function Home() {
+  const [models, setModels] = useState<AIModel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState("overall_intelligence");
+
+  // Fetch models from Supabase
+  useEffect(() => {
+    async function fetchModels() {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase
+        .from("ai_models")
+        .select("id, name, company, benchmark_scores, description, last_updated, overall_intelligence");
+      if (error) {
+        setError("Failed to fetch models");
+        setModels([]);
+      } else {
+        setModels((data as AIModel[]) || []);
+      }
+      setLoading(false);
+    }
+    fetchModels();
+  }, []);
+
+  // Sort models by selected metric
+  const sortedModels = React.useMemo(() => {
+    return [...models].sort((a, b) => {
+      const aScore = selectedMetric === "overall_intelligence"
+        ? a.overall_intelligence
+        : a.benchmark_scores?.[selectedMetric] ?? -Infinity;
+      const bScore = selectedMetric === "overall_intelligence"
+        ? b.overall_intelligence
+        : b.benchmark_scores?.[selectedMetric] ?? -Infinity;
+      return bScore - aScore;
+    });
+  }, [models, selectedMetric]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-12">
@@ -30,17 +72,17 @@ export default function Home() {
         AI Model Leaderboard
       </h1>
       <div className="mb-6 flex flex-wrap gap-3 justify-center">
-        {categories.map((cat) => (
+        {metrics.map((metric) => (
           <button
-            key={cat}
+            key={metric.key}
             className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400
-              ${selectedCategory === cat
+              ${selectedMetric === metric.key
                 ? "bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:text-white"
                 : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-blue-900"}
             `}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() => setSelectedMetric(metric.key)}
           >
-            {cat}
+            {metric.label}
           </button>
         ))}
       </div>
@@ -51,21 +93,36 @@ export default function Home() {
               <th className="py-4 px-6 text-sm font-semibold tracking-wide">#</th>
               <th className="py-4 px-6 text-sm font-semibold tracking-wide">Model Name</th>
               <th className="py-4 px-6 text-sm font-semibold tracking-wide">Company</th>
-              <th className="py-4 px-6 text-sm font-semibold tracking-wide">Category</th>
-              <th className="py-4 px-6 text-sm font-semibold tracking-wide text-right">Score</th>
+              <th className="py-4 px-6 text-sm font-semibold tracking-wide text-right">
+                {metrics.find(m => m.key === selectedMetric)?.label === 'Overall Intelligence'
+                  ? 'Overall Intelligence'
+                  : `${metrics.find(m => m.key === selectedMetric)?.label} Score`}
+              </th>
             </tr>
           </thead>
           <tbody>
-            {filteredModels.length === 0 ? (
+            {loading ? (
               <tr>
-                <td colSpan={5} className="py-8 px-6 text-center text-gray-500 dark:text-gray-400">
-                  No models found in this category.
+                <td colSpan={4} className="py-8 px-6 text-center text-gray-500 dark:text-gray-400">
+                  Loading models...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={4} className="py-8 px-6 text-center text-red-500 dark:text-red-400">
+                  {error}
+                </td>
+              </tr>
+            ) : sortedModels.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="py-8 px-6 text-center text-gray-500 dark:text-gray-400">
+                  No models found.
                 </td>
               </tr>
             ) : (
-              filteredModels.map((model, idx) => (
+              sortedModels.map((model, idx) => (
                 <tr
-                  key={model.name}
+                  key={model.id}
                   className={
                     idx % 2 === 0
                       ? "bg-white dark:bg-gray-900"
@@ -75,8 +132,15 @@ export default function Home() {
                   <td className="py-4 px-6 font-mono text-gray-500 dark:text-gray-400">{idx + 1}</td>
                   <td className="py-4 px-6 font-medium text-gray-900 dark:text-white">{model.name}</td>
                   <td className="py-4 px-6 text-gray-700 dark:text-gray-300">{model.company}</td>
-                  <td className="py-4 px-6 text-gray-700 dark:text-gray-300">{model.category}</td>
-                  <td className="py-4 px-6 text-right font-bold text-blue-600 dark:text-blue-400">{model.score}</td>
+                  <td className="py-4 px-6 text-right font-bold text-blue-600 dark:text-blue-400">
+                    {selectedMetric === "overall_intelligence"
+                      ? (model.overall_intelligence !== undefined && model.overall_intelligence !== null
+                          ? Number(model.overall_intelligence)
+                          : <span className="text-gray-400">N/A</span>)
+                      : (model.benchmark_scores && model.benchmark_scores[selectedMetric] !== undefined && model.benchmark_scores[selectedMetric] !== null
+                          ? Number(model.benchmark_scores[selectedMetric])
+                          : <span className="text-gray-400">N/A</span>)}
+                  </td>
                 </tr>
               ))
             )}
