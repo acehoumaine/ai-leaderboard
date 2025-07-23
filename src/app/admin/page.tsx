@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
@@ -36,8 +36,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Sync failed");
       setSyncMessage(`Synced! Updated ${data.updated} of ${data.total} models.`);
-    } catch (e: any) {
-      setSyncMessage(e.message || "Sync failed");
+    } catch (e: unknown) {
+      setSyncMessage(e && typeof e === 'object' && 'message' in e && typeof e.message === 'string' ? e.message : 'Sync failed');
     }
     setSyncing(false);
   };

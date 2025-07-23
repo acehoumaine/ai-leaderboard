@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 import type { BenchmarkScores } from '../../../../lib/types';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   const API_KEY = process.env.ARTIFICIAL_ANALYSIS_API_KEY;
   if (!API_KEY) {
     return NextResponse.json({ error: 'API key not set in environment.' }, { status: 500 });
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     if (!json.data || !Array.isArray(json.data)) throw new Error('Unexpected API response');
 
     let updated = 0;
-    const skipped: any[] = [];
+    const skipped: Array<{ id: string; name: string; reason: string; }> = [];
     for (const model of json.data) {
       const name = (model.name || '').trim().slice(0, 100);
       const company = (model.model_creator?.name || '').trim().slice(0, 100);
@@ -56,9 +56,9 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ updated, total: json.data.length, skipped });
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e);
-    return NextResponse.json({ error: e?.message || String(e) || 'Server error' }, { status: 500 });
+    return NextResponse.json({ error: e && typeof e === 'object' && 'message' in e && typeof e.message === 'string' ? e.message : String(e) || 'Server error' }, { status: 500 });
   }
 }
 

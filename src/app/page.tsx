@@ -32,8 +32,8 @@ export default function Home() {
           .select("id, name, company, benchmark_scores, description, last_updated, overall_intelligence, source_id");
         if (error) throw error;
         setModels((data as AIModel[]) || []);
-      } catch (err: any) {
-        setError("Failed to fetch data: " + (err?.message || String(err)));
+      } catch (err: unknown) {
+        setError("Failed to fetch data: " + (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string' ? err.message : String(err)));
         setModels([]);
       }
       setLoading(false);
