@@ -1,102 +1,90 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from "react";
+
+const categories = ["All", "Coding", "Writing", "Reasoning", "Multimodal"];
+
+const models = [
+  { name: "GPT-4o", company: "OpenAI", score: 99, category: "Multimodal" },
+  { name: "Claude 3 Opus", company: "Anthropic", score: 97, category: "Reasoning" },
+  { name: "Gemini 1.5 Pro", company: "Google", score: 95, category: "Multimodal" },
+  { name: "Llama 3 70B", company: "Meta", score: 92, category: "Reasoning" },
+  { name: "Mistral Large", company: "Mistral AI", score: 89, category: "Reasoning" },
+  { name: "GPT-4 Turbo", company: "OpenAI", score: 88, category: "Writing" },
+  { name: "Claude 3 Sonnet", company: "Anthropic", score: 87, category: "Writing" },
+  { name: "Gemini 1.0 Ultra", company: "Google", score: 85, category: "Coding" },
+  { name: "Llama 2 70B", company: "Meta", score: 83, category: "Coding" },
+];
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const filteredModels =
+    selectedCategory === "All"
+      ? models
+      : models.filter((model) => model.category === selectedCategory);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-12">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
+        AI Model Leaderboard
+      </h1>
+      <div className="mb-6 flex flex-wrap gap-3 justify-center">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400
+              ${selectedCategory === cat
+                ? "bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:text-white"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-blue-900"}
+            `}
+            onClick={() => setSelectedCategory(cat)}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+            {cat}
+          </button>
+        ))}
+      </div>
+      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-gray-100 dark:bg-gray-800">
+            <tr>
+              <th className="py-4 px-6 text-sm font-semibold tracking-wide">#</th>
+              <th className="py-4 px-6 text-sm font-semibold tracking-wide">Model Name</th>
+              <th className="py-4 px-6 text-sm font-semibold tracking-wide">Company</th>
+              <th className="py-4 px-6 text-sm font-semibold tracking-wide">Category</th>
+              <th className="py-4 px-6 text-sm font-semibold tracking-wide text-right">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredModels.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="py-8 px-6 text-center text-gray-500 dark:text-gray-400">
+                  No models found in this category.
+                </td>
+              </tr>
+            ) : (
+              filteredModels.map((model, idx) => (
+                <tr
+                  key={model.name}
+                  className={
+                    idx % 2 === 0
+                      ? "bg-white dark:bg-gray-900"
+                      : "bg-gray-50 dark:bg-gray-800"
+                  }
+                >
+                  <td className="py-4 px-6 font-mono text-gray-500 dark:text-gray-400">{idx + 1}</td>
+                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-white">{model.name}</td>
+                  <td className="py-4 px-6 text-gray-700 dark:text-gray-300">{model.company}</td>
+                  <td className="py-4 px-6 text-gray-700 dark:text-gray-300">{model.category}</td>
+                  <td className="py-4 px-6 text-right font-bold text-blue-600 dark:text-blue-400">{model.score}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      <footer className="mt-10 text-xs text-gray-500 dark:text-gray-400 text-center">
+        &copy; {new Date().getFullYear()} AI Leaderboard. All rights reserved.
       </footer>
     </div>
   );
