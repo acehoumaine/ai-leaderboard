@@ -78,7 +78,7 @@ export function getScoreBadgeColor(score: number | undefined | null, max = 100):
   return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
 }
 
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
