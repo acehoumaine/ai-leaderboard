@@ -188,12 +188,7 @@ export const ModelCard: React.FC<ModelCardProps> = ({
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-              <ClockIcon className="h-3 w-3" />
-              Updated {formatRelativeTime(model.last_updated)}
-            </div>
-            
+          <div className="flex items-center justify-end pt-2 border-t border-gray-200 dark:border-gray-700">
             {/* Special Indicators */}
             <div className="flex items-center gap-1">
               {rank <= 3 && (

@@ -11,6 +11,14 @@ import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { debounce } from '../../lib/utils';
 
+interface AdvancedFilters {
+  minScore?: number;
+  maxScore?: number;
+  hasCoding?: boolean;
+  hasSpeed?: boolean;
+  sortOrder?: string;
+}
+
 interface SearchAndFiltersProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -18,6 +26,8 @@ interface SearchAndFiltersProps {
   onCompanyChange: (company: string) => void;
   companyOptions: string[];
   totalResults: number;
+  advancedFilters: AdvancedFilters;
+  onAdvancedFiltersChange: (filters: AdvancedFilters) => void;
   className?: string;
 }
 
@@ -28,6 +38,8 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   onCompanyChange,
   companyOptions,
   totalResults,
+  advancedFilters,
+  onAdvancedFiltersChange,
   className = ''
 }) => {
   const [showAdvanced, setShowAdvanced] = React.useState(false);
@@ -35,7 +47,7 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
   // Debounced search
   const debouncedSearch = React.useMemo(
-    () => debounce((query: string) => onSearchChange(query), 300),
+    () => debounce((...args: unknown[]) => onSearchChange(args[0] as string), 300),
     [onSearchChange]
   );
 
@@ -48,6 +60,13 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
     setTempSearch('');
     onSearchChange('');
     onCompanyChange('');
+    onAdvancedFiltersChange({
+      minScore: undefined,
+      maxScore: undefined,
+      hasCoding: false,
+      hasSpeed: false,
+      sortOrder: 'desc',
+    });
   };
 
   return (
@@ -59,7 +78,7 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
             type="search"
             placeholder="Search models, companies, or capabilities..."
             value={tempSearch}
-            onChange={(e) => setTempSearch(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempSearch(e.target.value)}
             leftIcon={<MagnifyingGlassIcon />}
             className="w-full"
           />
@@ -69,7 +88,7 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
         <div className="flex gap-2">
           <select
             value={selectedCompany}
-            onChange={(e) => onCompanyChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onCompanyChange(e.target.value)}
             className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           >
             <option value="">All Companies</option>
@@ -121,6 +140,8 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                       className="w-20 px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                       min="0"
                       max="100"
+                      value={advancedFilters.minScore ?? ''}
+                      onChange={e => onAdvancedFiltersChange({ ...advancedFilters, minScore: e.target.value ? Number(e.target.value) : undefined })}
                     />
                     <span className="text-gray-400">to</span>
                     <input
@@ -129,6 +150,8 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                       className="w-20 px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                       min="0"
                       max="100"
+                      value={advancedFilters.maxScore ?? ''}
+                      onChange={e => onAdvancedFiltersChange({ ...advancedFilters, maxScore: e.target.value ? Number(e.target.value) : undefined })}
                     />
                   </div>
                 </div>
@@ -143,6 +166,8 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                       <input
                         type="checkbox"
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        checked={advancedFilters.hasCoding}
+                        onChange={e => onAdvancedFiltersChange({ ...advancedFilters, hasCoding: e.target.checked })}
                       />
                       <span className="ml-2 text-sm">Has Coding Score</span>
                     </label>
@@ -150,6 +175,8 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                       <input
                         type="checkbox"
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        checked={advancedFilters.hasSpeed}
+                        onChange={e => onAdvancedFiltersChange({ ...advancedFilters, hasSpeed: e.target.checked })}
                       />
                       <span className="ml-2 text-sm">Has Speed Data</span>
                     </label>
@@ -161,7 +188,11 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Sort Order
                   </label>
-                  <select className="w-full px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                  <select
+                    className="w-full px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                    value={advancedFilters.sortOrder}
+                    onChange={e => onAdvancedFiltersChange({ ...advancedFilters, sortOrder: e.target.value })}
+                  >
                     <option value="desc">Highest First</option>
                     <option value="asc">Lowest First</option>
                     <option value="name">Alphabetical</option>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ViewColumnsIcon,
@@ -13,6 +13,7 @@ import {
 
 import { supabase } from "../../lib/supabase";
 import type { AIModel } from "../../lib/types";
+import type { BenchmarkScores } from '../../lib/types';
 import { useLocalStorage } from "../../lib/hooks/useLocalStorage";
 import { formatRelativeTime, getCompanyColor } from "../../lib/utils";
 import { formatMetricValue } from "../../lib/metrics";
@@ -32,6 +33,14 @@ const PAGE_SIZE = 25;
 
 type ViewMode = 'table' | 'grid';
 
+interface AdvancedFilters {
+  minScore?: number;
+  maxScore?: number;
+  hasCoding?: boolean;
+  hasSpeed?: boolean;
+  sortOrder?: string;
+}
+
 export default function Home() {
   // State
   const [models, setModels] = useState<AIModel[]>([]);
@@ -41,9 +50,17 @@ export default function Home() {
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [selectedModels, setSelectedModels] = useState<AIModel[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [refreshing, setRefreshing] = useState(false);
+
+  // Advanced filters state
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
+    minScore: undefined,
+    maxScore: undefined,
+    hasCoding: false,
+    hasSpeed: false,
+    sortOrder: 'desc',
+  });
 
   // Persistent state
   const [favoriteModels, setFavoriteModels] = useLocalStorage<string[]>('favorite-models', []);
@@ -53,7 +70,7 @@ export default function Home() {
   useEffect(() => {
     fetchData();
     setLastVisited(new Date().toISOString());
-  }, [setLastVisited]);
+  }, []);
 
   // Data fetching
   async function fetchData() {
@@ -88,11 +105,9 @@ export default function Home() {
 
   const filteredModels = useMemo(() => {
     let filtered = models;
-    
     if (selectedCompany) {
       filtered = filtered.filter((m) => m.company === selectedCompany);
     }
-    
     if (searchQuery.trim()) {
       const query = searchQuery.trim().toLowerCase();
       filtered = filtered.filter(
@@ -102,27 +117,65 @@ export default function Home() {
           (m.description && m.description.toLowerCase().includes(query))
       );
     }
-    
+    // Advanced filters
+    if (advancedFilters.minScore !== undefined) {
+      filtered = filtered.filter((m) => m.overall_intelligence >= advancedFilters.minScore!);
+    }
+    if (advancedFilters.maxScore !== undefined) {
+      filtered = filtered.filter((m) => m.overall_intelligence <= advancedFilters.maxScore!);
+    }
+    if (advancedFilters.hasCoding) {
+      filtered = filtered.filter((m) => m.benchmark_scores && typeof m.benchmark_scores.coding === 'number');
+    }
+    if (advancedFilters.hasSpeed) {
+      filtered = filtered.filter((m) => m.benchmark_scores && typeof m.benchmark_scores.speed === 'number');
+    }
     return filtered;
-  }, [models, selectedCompany, searchQuery]);
+  }, [models, selectedCompany, searchQuery, advancedFilters]);
 
   const sortedModels = useMemo(() => {
-    return [...filteredModels].sort((a, b) => {
-      const aScore = selectedMetric === "overall_intelligence"
-        ? a.overall_intelligence
-        : a.benchmark_scores?.[selectedMetric] ?? -Infinity;
-      const bScore = selectedMetric === "overall_intelligence"
-        ? b.overall_intelligence
-        : b.benchmark_scores?.[selectedMetric] ?? -Infinity;
-      return bScore - aScore;
-    });
-  }, [filteredModels, selectedMetric]);
+    let sorted = [...filteredModels];
+    if (advancedFilters.sortOrder === 'asc') {
+      sorted.sort((a, b) => {
+        const aScore = selectedMetric === "overall_intelligence"
+          ? a.overall_intelligence
+          : a.benchmark_scores?.[selectedMetric] ?? -Infinity;
+        const bScore = selectedMetric === "overall_intelligence"
+          ? b.overall_intelligence
+          : b.benchmark_scores?.[selectedMetric] ?? -Infinity;
+        return aScore - bScore;
+      });
+    } else if (advancedFilters.sortOrder === 'desc') {
+      sorted.sort((a, b) => {
+        const aScore = selectedMetric === "overall_intelligence"
+          ? a.overall_intelligence
+          : a.benchmark_scores?.[selectedMetric] ?? -Infinity;
+        const bScore = selectedMetric === "overall_intelligence"
+          ? b.overall_intelligence
+          : b.benchmark_scores?.[selectedMetric] ?? -Infinity;
+        return bScore - aScore;
+      });
+    } else if (advancedFilters.sortOrder === 'name') {
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (advancedFilters.sortOrder === 'recent') {
+      sorted.sort((a, b) => {
+        const aDate = a.last_updated ? new Date(a.last_updated).getTime() : 0;
+        const bDate = b.last_updated ? new Date(b.last_updated).getTime() : 0;
+        return bDate - aDate;
+      });
+    }
+    return sorted;
+  }, [filteredModels, selectedMetric, advancedFilters.sortOrder]);
 
-  const paginatedModels = useMemo(() => {
-    return sortedModels.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  }, [sortedModels, page]);
-
+  // Calculate total pages first
   const totalPages = Math.ceil(sortedModels.length / PAGE_SIZE);
+  
+  // Calculate paginated models without side effects
+  const paginatedModels = useMemo(() => {
+    // Use current page, but ensure it's within bounds
+    const safePage = Math.min(Math.max(1, page), Math.max(1, totalPages));
+    return sortedModels.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  }, [sortedModels, page, totalPages]);
 
   const stats = useMemo(() => {
     if (models.length === 0) return null;
@@ -143,20 +196,25 @@ export default function Home() {
 
   // Handlers
   const handlePageChange = (newPage: number) => {
+    // Simple bounds check - totalPages is already calculated
     if (newPage >= 1 && newPage <= totalPages) {
+      console.log(`Changing page from ${page} to ${newPage}`);
       setPage(newPage);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const handleModelSelect = (model: AIModel) => {
-    const isSelected = selectedModels.some((m) => m.id === model.id);
-    if (isSelected) {
-      setSelectedModels(selectedModels.filter((m) => m.id !== model.id));
-    } else if (selectedModels.length < 3) {
-      setSelectedModels([...selectedModels, model]);
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCompany, searchQuery, advancedFilters, selectedMetric]);
+  
+  // Separate effect to clamp page if it exceeds total pages
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(totalPages);
     }
-  };
+  }, [totalPages, page]);
 
   const toggleFavorite = (modelId: string) => {
     setFavoriteModels(prev => 
@@ -164,10 +222,6 @@ export default function Home() {
         ? prev.filter(id => id !== modelId)
         : [...prev, modelId]
     );
-  };
-
-  const handleClearSelection = () => {
-    setSelectedModels([]);
   };
 
   if (loading) {
@@ -240,10 +294,6 @@ export default function Home() {
                 <EyeIcon className="h-4 w-4 mr-2" />
                 {stats.totalCompanies} Companies
               </Badge>
-              <Badge variant="secondary" size="md" className="px-4 py-2">
-                <ArrowPathIcon className="h-4 w-4 mr-2" />
-                Updated {stats.lastUpdated}
-              </Badge>
             </div>
           )}
         </motion.div>
@@ -282,6 +332,11 @@ export default function Home() {
             }}
             companyOptions={companyOptions}
             totalResults={sortedModels.length}
+            advancedFilters={advancedFilters}
+            onAdvancedFiltersChange={filters => {
+              setAdvancedFilters(filters);
+              setPage(1);
+            }}
           />
         </motion.div>
 
@@ -312,29 +367,6 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2">
-            {selectedModels.length > 0 && (
-              <>
-                <Badge variant="info" size="md">
-                  {selectedModels.length} selected
-                </Badge>
-                                 <Button
-                   variant="primary"
-                   size="sm"
-                   disabled={selectedModels.length < 2}
-                   onClick={() => {/* TODO: Implement comparison */}}
-                 >
-                   Compare Models
-                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearSelection}
-                >
-                  Clear
-                </Button>
-              </>
-            )}
-            
             <Button
               variant="outline"
               size="sm"
@@ -362,9 +394,7 @@ export default function Home() {
                     model={model}
                     rank={(page - 1) * PAGE_SIZE + index + 1}
                     selectedMetric={selectedMetric}
-                    isSelected={selectedModels.some(m => m.id === model.id)}
                     isFavorite={favoriteModels.includes(model.id)}
-                    onSelect={handleModelSelect}
                     onToggleFavorite={toggleFavorite}
                   />
                 ))}
@@ -394,85 +424,65 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    <AnimatePresence mode="popLayout">
-                      {paginatedModels.map((model, index) => {
-                        const rank = (page - 1) * PAGE_SIZE + index + 1;
-                        const isSelected = selectedModels.some(m => m.id === model.id);
-                        const isFavorite = favoriteModels.includes(model.id);
-                        
-                        return (
-                          <motion.tr
-                            key={model.id}
-                            layout
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            transition={{ duration: 0.2, delay: index * 0.02 }}
-                            className={`border-b border-gray-200 dark:border-gray-700 transition-colors ${
-                              isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                            }`}
-                          >
-                            <td className="px-6 py-4">
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                                rank <= 3 
-                                  ? rank === 1 
-                                    ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white'
-                                    : rank === 2
-                                    ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white'
-                                    : 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
-                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                              }`}>
-                                {rank}
+                    {paginatedModels.map((model, index) => {
+                      const rank = (page - 1) * PAGE_SIZE + index + 1;
+                      return (
+                        <tr
+                          key={model.id}
+                          className={`border-b border-gray-200 dark:border-gray-700 transition-colors`}
+                        >
+                          <td className="px-6 py-4">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                              rank <= 3 
+                                ? rank === 1 
+                                  ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white'
+                                  : rank === 2
+                                  ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white'
+                                  : 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                            }`}>
+                              {rank}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="font-medium text-gray-900 dark:text-white">
+                              {model.name}
+                            </div>
+                            {model.description && (
+                              <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                                {model.description}
                               </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="font-medium text-gray-900 dark:text-white">
-                                {model.name}
-                              </div>
-                              {model.description && (
-                                <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                                  {model.description}
-                                </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge size="sm" className={getCompanyColor(model.company)}>
+                              {model.company}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="font-bold text-lg text-blue-600 dark:text-blue-400">
+                              {formatMetricValue(selectedMetric, 
+                                selectedMetric === "overall_intelligence"
+                                  ? model.overall_intelligence
+                                  : model.benchmark_scores?.[selectedMetric]
                               )}
-                            </td>
-                            <td className="px-6 py-4">
-                              <Badge size="sm" className={getCompanyColor(model.company)}>
-                                {model.company}
-                              </Badge>
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                              <div className="font-bold text-lg text-blue-600 dark:text-blue-400">
-                                {formatMetricValue(selectedMetric, 
-                                  selectedMetric === "overall_intelligence"
-                                    ? model.overall_intelligence
-                                    : model.benchmark_scores?.[selectedMetric]
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center justify-center gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleFavorite(model.id)}
-                                  className="p-1"
-                                >
-                                  <HeartIcon className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-                                </Button>
-                                <Button
-                                  variant={isSelected ? 'primary' : 'outline'}
-                                  size="sm"
-                                  onClick={() => handleModelSelect(model)}
-                                  disabled={!isSelected && selectedModels.length >= 3}
-                                >
-                                  {isSelected ? 'Selected' : 'Select'}
-                                </Button>
-                              </div>
-                            </td>
-                          </motion.tr>
-                        );
-                      })}
-                    </AnimatePresence>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleFavorite(model.id)}
+                                className="p-1"
+                              >
+                                <HeartIcon className={`h-4 w-4 ${favoriteModels.includes(model.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -482,20 +492,18 @@ export default function Home() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex justify-center items-center gap-2"
-          >
-            <Button
-              variant="outline"
-              size="sm"
+          <div className="flex justify-center items-center gap-2 mt-6 mb-4">
+            <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
+              className={`px-3 py-1 rounded border ${
+                page === 1 
+                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              } dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600`}
             >
               Previous
-            </Button>
+            </button>
             
             <div className="flex items-center gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -511,32 +519,37 @@ export default function Home() {
                 }
                 
                 return (
-                  <Button
+                  <button
                     key={pageNumber}
-                    variant={page === pageNumber ? 'primary' : 'ghost'}
-                    size="sm"
                     onClick={() => handlePageChange(pageNumber)}
-                    className="w-10"
+                    className={`w-8 h-8 flex items-center justify-center rounded ${
+                      page === pageNumber
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'
+                    }`}
                   >
                     {pageNumber}
-                  </Button>
+                  </button>
                 );
               })}
             </div>
             
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === totalPages}
+              className={`px-3 py-1 rounded border ${
+                page === totalPages 
+                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              } dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600`}
             >
               Next
-            </Button>
-          </motion.div>
+            </button>
+          </div>
         )}
       </main>
 
-      <Footer stats={stats} />
+      <Footer stats={stats ?? undefined} />
     </div>
   );
 }

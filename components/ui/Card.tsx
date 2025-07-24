@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends React.ComponentPropsWithoutRef<typeof motion.div> {
   variant?: 'default' | 'elevated' | 'outlined';
   hover?: boolean;
   children: React.ReactNode;
@@ -16,14 +16,15 @@ const cardVariants = {
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', hover = false, children, ...props }, ref) => {
-    const Component = hover ? motion.div : 'div';
-    const motionProps = hover ? {
-      whileHover: { y: -2, shadow: '0 10px 25px -3px rgba(0, 0, 0, 0.1)' },
-      transition: { duration: 0.2 }
-    } : {};
+    const motionProps = hover
+      ? {
+          whileHover: { y: -2, shadow: '0 10px 25px -3px rgba(0, 0, 0, 0.1)' },
+          transition: { duration: 0.2 }
+        }
+      : {};
 
     return (
-      <Component
+      <motion.div
         ref={ref}
         className={cn(
           'rounded-xl overflow-hidden transition-all duration-200',
@@ -35,7 +36,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         {...props}
       >
         {children}
-      </Component>
+      </motion.div>
     );
   }
 );
