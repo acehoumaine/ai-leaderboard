@@ -8,7 +8,6 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  InformationCircleIcon,
   BuildingOfficeIcon,
   BeakerIcon
 } from '@heroicons/react/24/outline';

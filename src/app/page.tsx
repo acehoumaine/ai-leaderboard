@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ViewColumnsIcon,
@@ -13,7 +13,6 @@ import {
 
 import { supabase } from "../../lib/supabase";
 import type { AIModel } from "../../lib/types";
-import type { BenchmarkScores } from '../../lib/types';
 import { useLocalStorage } from "../../lib/hooks/useLocalStorage";
 import { formatRelativeTime, getCompanyColor } from "../../lib/utils";
 import { formatMetricValue } from "../../lib/metrics";
@@ -134,7 +133,7 @@ export default function Home() {
   }, [models, selectedCompany, searchQuery, advancedFilters]);
 
   const sortedModels = useMemo(() => {
-    let sorted = [...filteredModels];
+    const sorted = [...filteredModels];
     if (advancedFilters.sortOrder === 'asc') {
       sorted.sort((a, b) => {
         const aScore = selectedMetric === "overall_intelligence"
