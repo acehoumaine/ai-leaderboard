@@ -14,7 +14,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { supabase } from "../../../lib/supabase";
-import type { AIModel } from "../../../lib/types";
 import { formatRelativeTime } from "../../../lib/utils";
 
 // Components
@@ -44,7 +43,6 @@ export default function AdminPage() {
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStats();
@@ -52,7 +50,6 @@ export default function AdminPage() {
 
   const loadStats = async () => {
     try {
-      setLoading(true);
       const { data: models, error } = await supabase
         .from("ai_models")
         .select("*");
@@ -97,8 +94,6 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error loading stats:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -8,8 +8,7 @@ import {
   ChartBarIcon,
   ArrowPathIcon,
   EyeIcon,
-  HeartIcon,
-  ShareIcon
+  HeartIcon
 } from '@heroicons/react/24/outline';
 
 import { supabase } from "../../lib/supabase";
@@ -43,19 +42,18 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [selectedModels, setSelectedModels] = useState<AIModel[]>([]);
-  const [showComparison, setShowComparison] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [refreshing, setRefreshing] = useState(false);
 
   // Persistent state
   const [favoriteModels, setFavoriteModels] = useLocalStorage<string[]>('favorite-models', []);
-  const [lastVisited, setLastVisited] = useLocalStorage<string>('last-visited', '');
+  const [, setLastVisited] = useLocalStorage<string>('last-visited', '');
 
   // Effects
   useEffect(() => {
     fetchData();
     setLastVisited(new Date().toISOString());
-  }, []);
+  }, [setLastVisited]);
 
   // Data fetching
   async function fetchData() {
@@ -170,7 +168,6 @@ export default function Home() {
 
   const handleClearSelection = () => {
     setSelectedModels([]);
-    setShowComparison(false);
   };
 
   if (loading) {
@@ -320,14 +317,14 @@ export default function Home() {
                 <Badge variant="info" size="md">
                   {selectedModels.length} selected
                 </Badge>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  disabled={selectedModels.length < 2}
-                  onClick={() => setShowComparison(true)}
-                >
-                  Compare Models
-                </Button>
+                                 <Button
+                   variant="primary"
+                   size="sm"
+                   disabled={selectedModels.length < 2}
+                   onClick={() => {/* TODO: Implement comparison */}}
+                 >
+                   Compare Models
+                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"

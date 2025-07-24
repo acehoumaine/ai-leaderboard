@@ -184,9 +184,9 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
               </span>
               
               {searchQuery && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  Search: "{searchQuery}"
-                  <button
+                                 <Badge variant="secondary" className="flex items-center gap-1">
+                   Search: &ldquo;{searchQuery}&rdquo;
+                   <button
                     onClick={() => {
                       setTempSearch('');
                       onSearchChange('');

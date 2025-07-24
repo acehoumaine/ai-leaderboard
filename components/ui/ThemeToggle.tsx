@@ -5,7 +5,7 @@ import { useTheme } from '../../lib/hooks/useTheme';
 import { Button } from './Button';
 
 export const ThemeToggle = () => {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const themes = [
     { key: 'light', icon: SunIcon, label: 'Light' },
