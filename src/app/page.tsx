@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import type { AIModel } from "../../lib/types";
 import Link from "next/link";
-import { Radar, Bar } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -349,7 +349,7 @@ export default function Home() {
                     scales: {
                       x: {
                         grid: { color: '#e5e7eb' },
-                        ticks: { color: '#6b7280', font: { size: 10 }, callback: (v: any) => `${v}%` },
+                        ticks: { color: '#6b7280', font: { size: 10 }, callback: (v: number | string) => `${v}%` },
                         min: 0,
                         max: 100,
                       },
@@ -402,14 +402,15 @@ export default function Home() {
                   className={
                     `${idx % 2 === 0
                       ? "bg-white dark:bg-gray-900"
-                      : "bg-gray-50 dark:bg-gray-800"} transition-colors hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800`}
+                      : "bg-gray-50 dark:bg-gray-800"} transition-colors hover:bg-blue-100 dark:hover:bg-blue-900 active:bg-blue-200 dark:active:bg-blue-800 cursor-pointer`}
+                  onClick={() => handleModelSelect(model)}
                 >
                   <td className="py-3 sm:py-4 px-3 sm:px-6 font-mono text-gray-500 dark:text-gray-400">{(page - 1) * PAGE_SIZE + idx + 1}</td>
                   <td className="py-3 sm:py-4 px-3 sm:px-6">
                     <input
                       type="checkbox"
                       checked={isModelSelected(model.id)}
-                      onChange={() => handleModelSelect(model)}
+                      onChange={e => { e.stopPropagation(); handleModelSelect(model); }}
                       disabled={!isModelSelected(model.id) && selectedModels.length >= 3}
                       aria-label={`Select ${model.name} for comparison`}
                     />
@@ -418,7 +419,7 @@ export default function Home() {
                   <td className="py-3 sm:py-4 px-3 sm:px-6 text-gray-700 dark:text-gray-300">
                     <button
                       className="underline hover:text-blue-600 dark:hover:text-blue-400"
-                      onClick={() => handleCompanyClick(model.company)}
+                      onClick={e => { e.stopPropagation(); handleCompanyClick(model.company); }}
                     >
                       {model.company}
                     </button>
