@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -124,17 +126,7 @@ export const Footer: React.FC<FooterProps> = ({ stats }) => {
                   Artificial Analysis
                 </a>
               </p>
-              <p>
-                Built with{' '}
-                <motion.span
-                  className="inline-flex items-center"
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 1, repeat: Infinity, repeatDelay: 3 }}
-                >
-                  <HeartIcon className="h-4 w-4 text-red-500 mx-1" />
-                </motion.span>
-                using Next.js & Tailwind CSS
-              </p>
+              <p>Built for fun</p>
             </div>
           </div>
         </div>

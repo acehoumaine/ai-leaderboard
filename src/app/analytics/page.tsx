@@ -38,7 +38,7 @@ interface AdminStats {
   topCompanies: Array<{ company: string; count: number; avgScore: number }>;
 }
 
-export default function AdminPage() {
+export default function AnalyticsPage() {
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
@@ -125,7 +125,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
-      <Header currentPath="/admin" />
+      <Header currentPath="/analytics" />
       
       <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}
@@ -139,11 +139,11 @@ export default function AdminPage() {
               <BeakerIcon className="h-7 w-7 text-white" />
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
-              Admin Dashboard
+              Dashboard
             </h1>
           </div>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Manage and monitor the AI model leaderboard data, sync with external sources, and view system statistics.
+            Monitor the AI model leaderboard data, sync with external sources, and view analytics and system statistics.
           </p>
         </motion.div>
 
@@ -362,55 +362,6 @@ export default function AdminPage() {
             </Card>
           </motion.div>
         )}
-
-        {/* System Information */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <InformationCircleIcon className="h-5 w-5" />
-                System Information
-              </h2>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <h3 className="font-medium text-gray-900 dark:text-white">Data Sources</h3>
-                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      Artificial Analysis API
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      Supabase Database
-                    </li>
-                  </ul>
-                </div>
-                
-                <div className="space-y-3">
-                  <h3 className="font-medium text-gray-900 dark:text-white">Last Operations</h3>
-                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    {stats?.lastSyncTime && (
-                      <div className="flex justify-between">
-                        <span>Last Sync:</span>
-                        <span>{formatRelativeTime(stats.lastSyncTime)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span>System Status:</span>
-                      <Badge variant="success" size="sm">Operational</Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
       </main>
 
       <Footer />

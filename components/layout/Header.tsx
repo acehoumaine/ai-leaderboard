@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -18,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '/' }) => {
   const navItems = [
     { href: '/', icon: ChartBarIcon, label: 'Leaderboard', active: currentPath === '/' },
     { href: '/api-info', icon: InformationCircleIcon, label: 'API', active: currentPath === '/api-info' },
-    { href: '/admin', icon: Cog6ToothIcon, label: 'Admin', active: currentPath === '/admin' }
+    { href: '/analytics', icon: Cog6ToothIcon, label: 'Analytics', active: currentPath === '/analytics' }
   ];
 
   return (
