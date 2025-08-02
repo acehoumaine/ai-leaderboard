@@ -22,12 +22,16 @@ import { Badge } from "../../../components/ui/Badge";
 import { copyToClipboard } from "../../../lib/utils";
 
 const codeExamples = {
-  curl: `curl -X GET "https://your-api-endpoint.com/api/models" \\
+  curl: `curl -X GET "https://www.ai-fun-ranking.com/api/models" \\
   -H "Accept: application/json"`,
   
   javascript: `// Fetch AI models data
-const response = await fetch('/api/models');
-const models = await response.json();
+const response = await fetch('https://www.ai-fun-ranking.com/api/models');
+const data = await response.json();
+
+// Access models and pagination
+const models = data.data;
+const pagination = data.pagination;
 
 // Filter by company
 const openAIModels = models.filter(m => m.company === 'OpenAI');
@@ -38,8 +42,12 @@ const topModels = models.sort((a, b) => b.overall_intelligence - a.overall_intel
   python: `import requests
 
 # Fetch models data
-response = requests.get('https://your-api-endpoint.com/api/models')
-models = response.json()
+response = requests.get('https://www.ai-fun-ranking.com/api/models')
+data = response.json()
+
+# Access models and pagination
+models = data['data']
+pagination = data['pagination']
 
 # Filter and sort
 openai_models = [m for m in models if m['company'] == 'OpenAI']
@@ -67,8 +75,9 @@ export default function ApiInfoPage() {
       description: 'Retrieve all AI models with their scores and metadata',
       parameters: [
         { name: 'company', type: 'string', description: 'Filter by company name (optional)' },
-        { name: 'limit', type: 'number', description: 'Limit number of results (optional)' },
-        { name: 'sort', type: 'string', description: 'Sort by field (intelligence, speed, etc.)' }
+        { name: 'page', type: 'number', description: 'Page number for pagination (optional, default: 1)' },
+        { name: 'pageSize', type: 'number', description: 'Number of results per page (optional, default: 25, max: 100)' },
+        { name: 'sort', type: 'string', description: 'Sort by field (overall_intelligence, name, company, recent) (optional)' }
       ]
     },
     {
@@ -419,35 +428,7 @@ export default function ApiInfoPage() {
           </Card>
         </motion.div>
 
-        {/* Coming Soon */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-        >
-          <Card className="text-center">
-            <CardContent className="p-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BeakerIcon className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Full API Coming Soon!
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                                 We&apos;re working on a comprehensive public API with authentication, webhooks, and advanced filtering. 
-                Stay tuned for updates!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                  Join Waitlist
-                </Button>
-                <Button variant="outline" size="lg">
-                  View Roadmap
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        
       </main>
 
       <Footer />

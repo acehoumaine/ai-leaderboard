@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ViewColumnsIcon,
@@ -52,7 +52,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Advanced filters state
+  // Advanced filters state - use useMemo to prevent unnecessary re-renders
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     minScore: undefined,
     maxScore: undefined,
@@ -64,11 +64,13 @@ export default function Home() {
   // Persistent state
   const [favoriteModels, setFavoriteModels] = useLocalStorage<string[]>('favorite-models', []);
   const [, setLastVisited] = useLocalStorage<string>('last-visited', '');
+  const setLastVisitedRef = useRef(setLastVisited);
+  setLastVisitedRef.current = setLastVisited;
 
   // Effects
   useEffect(() => {
     fetchData();
-    setLastVisited(new Date().toISOString());
+    setLastVisitedRef.current(new Date().toISOString());
   }, []);
 
   // Data fetching
@@ -130,7 +132,9 @@ export default function Home() {
       filtered = filtered.filter((m) => m.benchmark_scores && typeof m.benchmark_scores.speed === 'number');
     }
     return filtered;
-  }, [models, selectedCompany, searchQuery, advancedFilters]);
+  }, [models, selectedCompany, searchQuery, 
+      advancedFilters.minScore, advancedFilters.maxScore, 
+      advancedFilters.hasCoding, advancedFilters.hasSpeed]);
 
   const sortedModels = useMemo(() => {
     const sorted = [...filteredModels];
@@ -169,12 +173,13 @@ export default function Home() {
   // Calculate total pages first
   const totalPages = Math.ceil(sortedModels.length / PAGE_SIZE);
   
-  // Calculate paginated models without side effects
-  const paginatedModels = useMemo(() => {
-    // Use current page, but ensure it's within bounds
-    const safePage = Math.min(Math.max(1, page), Math.max(1, totalPages));
-    return sortedModels.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  }, [sortedModels, page, totalPages]);
+  // Calculate paginated models directly
+  const safePage = Math.max(1, Math.min(page, totalPages || 1));
+  const startIndex = (safePage - 1) * PAGE_SIZE;
+  const endIndex = startIndex + PAGE_SIZE;
+  const paginatedModels = sortedModels.slice(startIndex, endIndex);
+  
+
 
   const stats = useMemo(() => {
     if (models.length === 0) return null;
@@ -195,22 +200,35 @@ export default function Home() {
 
   // Handlers
   const handlePageChange = (newPage: number) => {
-    // Simple bounds check - totalPages is already calculated
-    if (newPage >= 1 && newPage <= totalPages) {
-      console.log(`Changing page from ${page} to ${newPage}`);
-      setPage(newPage);
+    // Ensure the new page is within valid bounds
+    const validPage = Math.max(1, Math.min(newPage, totalPages || 1));
+    
+    if (validPage !== page) {
+      setPage(validPage);
+      // Scroll to top smoothly
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  // Reset page to 1 when filters change
-  useEffect(() => {
+  // Add memoized callbacks
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
     setPage(1);
-  }, [selectedCompany, searchQuery, advancedFilters, selectedMetric]);
+  }, []);
+
+  const handleCompanyChange = useCallback((company: string) => {
+    setSelectedCompany(company);
+    setPage(1);
+  }, []);
+
+  const handleAdvancedFiltersChange = useCallback((filters: AdvancedFilters) => {
+    setAdvancedFilters(filters);
+    setPage(1);
+  }, []);
   
-  // Separate effect to clamp page if it exceeds total pages
+  // Ensure page is within valid bounds when total pages changes
   useEffect(() => {
-    if (page > totalPages && totalPages > 0) {
+    if (totalPages > 0 && page > totalPages) {
       setPage(totalPages);
     }
   }, [totalPages, page]);
@@ -320,22 +338,13 @@ export default function Home() {
         >
           <SearchAndFilters
             searchQuery={searchQuery}
-            onSearchChange={(query) => {
-              setSearchQuery(query);
-              setPage(1);
-            }}
+            onSearchChange={handleSearchChange}
             selectedCompany={selectedCompany}
-            onCompanyChange={(company) => {
-              setSelectedCompany(company);
-              setPage(1);
-            }}
+            onCompanyChange={handleCompanyChange}
             companyOptions={companyOptions}
             totalResults={sortedModels.length}
             advancedFilters={advancedFilters}
-            onAdvancedFiltersChange={filters => {
-              setAdvancedFilters(filters);
-              setPage(1);
-            }}
+            onAdvancedFiltersChange={handleAdvancedFiltersChange}
           />
         </motion.div>
 

@@ -2,6 +2,8 @@
 
 A simple, modern leaderboard for comparing top AI models by intelligence, speed, cost efficiency, and more. Filter and search by company or model name. Data is synced from Artificial Analysis.
 
+**Website: https://www.ai-fun-ranking.com**
+
 ---
 
 **Why?**

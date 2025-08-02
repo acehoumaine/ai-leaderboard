@@ -12,7 +12,7 @@ export default function AboutPage() {
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 w-full space-y-4 border border-gray-100 dark:border-gray-800">
           <p className="text-gray-700 dark:text-gray-300">
-            Hi! I'm <span className="font-semibold">Ayoub HOUMAINE</span>, a sales professional in the tech industry with an engineering background. This project is just my way of keeping my inner engineer happy (and slightly less rusty) while having some fun with code and AI.
+            Hi! I'm <span className="font-semibold">Ayoub HOUMAINE</span>, a sales professional in the tech industry with an engineering background.
           </p>
           <p className="text-gray-700 dark:text-gray-300">
             If you want to chat, suggest improvements, or just say hi, you can find me on LinkedIn:
@@ -24,7 +24,7 @@ export default function AboutPage() {
             >
               ayoub-houmaine
             </a>
-            . That's the best place to reach me—no bots, just me (promise).
+            . That's the best place to reach me.
           </p>
           <p className="text-gray-700 dark:text-gray-300">
             This site is built for fun and learning, and is not affiliated with any company or organization. All data is sourced from public benchmarks and community contributions.

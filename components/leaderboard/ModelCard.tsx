@@ -12,7 +12,7 @@ import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import type { AIModel } from '../../lib/types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
-import { getCompanyColor, getScoreColor, formatRelativeTime } from '../../lib/utils';
+import { getCompanyColor, getScoreColor } from '../../lib/utils';
 import { formatMetricValue, getMetricDefinition } from '../../lib/metrics';
 
 interface ModelCardProps {
