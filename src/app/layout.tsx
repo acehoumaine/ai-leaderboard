@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://ai-leaderboard.vercel.app'),
+  metadataBase: new URL('https://www.ai-fun-ranking.com'),
   alternates: {
     canonical: '/',
   },
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
     siteName: 'AI Leaderboard',
     images: [
       {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'AI Leaderboard - Independent AI Model Rankings',
+        url: '/globe.svg',
+        width: 32,
+        height: 32,
+        alt: 'AI Leaderboard Logo',
       },
     ],
   },
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'AI Leaderboard - Independent AI Model Rankings',
     description: 'Comprehensive rankings and analysis of AI models based on independent benchmarks.',
-    images: ['/og-image.png'],
+    images: ['/globe.svg'],
   },
   robots: {
     index: true,
@@ -66,6 +66,13 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.GOOGLE_VERIFICATION_ID,
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/globe.svg', type: 'image/svg+xml' }
+    ],
+    apple: '/apple-touch-icon.png',
   },
 };
 
