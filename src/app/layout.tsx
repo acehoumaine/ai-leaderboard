@@ -38,20 +38,11 @@ export const metadata: Metadata = {
     title: 'AI Leaderboard - Independent AI Model Rankings',
     description: 'Comprehensive rankings and analysis of AI models based on independent benchmarks and real-world testing.',
     siteName: 'AI Leaderboard',
-    images: [
-      {
-        url: '/globe.svg',
-        width: 32,
-        height: 32,
-        alt: 'AI Leaderboard Logo',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AI Leaderboard - Independent AI Model Rankings',
     description: 'Comprehensive rankings and analysis of AI models based on independent benchmarks.',
-    images: ['/globe.svg'],
   },
   robots: {
     index: true,
@@ -67,12 +58,6 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.GOOGLE_VERIFICATION_ID,
   },
-  icons: {
-    icon: [
-      { url: '/globe.svg', type: 'image/svg+xml' }
-    ],
-    apple: '/apple-touch-icon.png',
-  },
 };
 
 export default function RootLayout({
@@ -83,10 +68,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/globe.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#3b82f6" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body
