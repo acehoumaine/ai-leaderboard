@@ -8,7 +8,9 @@ import {
   ChartBarIcon,
   ArrowPathIcon,
   EyeIcon,
-  HeartIcon
+  HeartIcon,
+  ArrowDownTrayIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 
 import { supabase } from "../../lib/supabase";
@@ -51,6 +53,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [refreshing, setRefreshing] = useState(false);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   // Advanced filters state - use useMemo to prevent unnecessary re-renders
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
@@ -233,12 +236,109 @@ export default function Home() {
     }
   }, [totalPages, page]);
 
+  // Close export dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.export-dropdown')) {
+        setShowExportDropdown(false);
+      }
+    };
+
+    if (showExportDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showExportDropdown]);
+
   const toggleFavorite = (modelId: string) => {
     setFavoriteModels(prev => 
       prev.includes(modelId) 
         ? prev.filter(id => id !== modelId)
         : [...prev, modelId]
     );
+  };
+
+  const exportToCSV = () => {
+    // Create CSV content from current filtered/sorted data
+    const headers = ['Rank', 'Model', 'Company', 'Intelligence Score', 'Description'];
+    const csvContent = [
+      headers.join(','),
+      ...paginatedModels.map((model, index) => {
+        const rank = (page - 1) * PAGE_SIZE + index + 1;
+        const score = selectedMetric === "overall_intelligence"
+          ? model.overall_intelligence
+          : model.benchmark_scores?.[selectedMetric];
+        const formattedScore = formatMetricValue(selectedMetric, score);
+        
+        return [
+          rank,
+          `"${model.name}"`,
+          `"${model.company}"`,
+          formattedScore,
+          `"${model.description || ''}"`
+        ].join(',');
+      })
+    ].join('\n');
+
+    // Create filename with current filters
+    const filters = [];
+    if (selectedCompany) filters.push(selectedCompany);
+    if (searchQuery) filters.push('search');
+    if (advancedFilters.minScore !== undefined || advancedFilters.maxScore !== undefined) filters.push('filtered');
+    const filterSuffix = filters.length > 0 ? `-${filters.join('-')}` : '';
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `ai-leaderboard-page-${page}${filterSuffix}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportAllToCSV = () => {
+    // Create CSV content from all filtered/sorted data
+    const headers = ['Rank', 'Model', 'Company', 'Intelligence Score', 'Description', 'Last Updated'];
+    const csvContent = [
+      headers.join(','),
+      ...sortedModels.map((model, index) => {
+        const score = selectedMetric === "overall_intelligence"
+          ? model.overall_intelligence
+          : model.benchmark_scores?.[selectedMetric];
+        const formattedScore = formatMetricValue(selectedMetric, score);
+        
+        return [
+          index + 1,
+          `"${model.name}"`,
+          `"${model.company}"`,
+          formattedScore,
+          `"${model.description || ''}"`,
+          `"${model.last_updated || ''}"`
+        ].join(',');
+      })
+    ].join('\n');
+
+    // Create filename with current filters
+    const filters = [];
+    if (selectedCompany) filters.push(selectedCompany);
+    if (searchQuery) filters.push('search');
+    if (advancedFilters.minScore !== undefined || advancedFilters.maxScore !== undefined) filters.push('filtered');
+    const filterSuffix = filters.length > 0 ? `-${filters.join('-')}` : '';
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `ai-leaderboard-all${filterSuffix}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -384,6 +484,42 @@ export default function Home() {
             >
               Refresh
             </Button>
+            <div className="relative export-dropdown">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowExportDropdown(!showExportDropdown)}
+                disabled={sortedModels.length === 0}
+                leftIcon={<ArrowDownTrayIcon className="h-4 w-4" />}
+                rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+              >
+                Export
+              </Button>
+              {showExportDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        exportToCSV();
+                        setShowExportDropdown(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Current Page ({paginatedModels.length} models)
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportAllToCSV();
+                        setShowExportDropdown(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      All Filtered ({sortedModels.length} models)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
 

@@ -57,7 +57,12 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
     debouncedSearch(tempSearch);
   }, [tempSearch, debouncedSearch]);
 
-  const hasActiveFilters = selectedCompany || searchQuery;
+  const hasActiveFilters = selectedCompany || searchQuery || 
+    advancedFilters.minScore !== undefined || 
+    advancedFilters.maxScore !== undefined || 
+    advancedFilters.hasCoding || 
+    advancedFilters.hasSpeed || 
+    advancedFilters.sortOrder !== 'desc';
   const clearAllFilters = () => {
     setTempSearch('');
     onSearchChange('');
@@ -236,6 +241,68 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                   Company: {selectedCompany}
                   <button
                     onClick={() => onCompanyChange('')}
+                    className="ml-1 hover:text-red-600"
+                  >
+                    <XMarkIcon className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {/* Advanced Filters Indicators */}
+              {advancedFilters.minScore !== undefined && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Min Score: {advancedFilters.minScore}
+                  <button
+                    onClick={() => onAdvancedFiltersChange({ ...advancedFilters, minScore: undefined })}
+                    className="ml-1 hover:text-red-600"
+                  >
+                    <XMarkIcon className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {advancedFilters.maxScore !== undefined && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Max Score: {advancedFilters.maxScore}
+                  <button
+                    onClick={() => onAdvancedFiltersChange({ ...advancedFilters, maxScore: undefined })}
+                    className="ml-1 hover:text-red-600"
+                  >
+                    <XMarkIcon className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {advancedFilters.hasCoding && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Has Coding
+                  <button
+                    onClick={() => onAdvancedFiltersChange({ ...advancedFilters, hasCoding: false })}
+                    className="ml-1 hover:text-red-600"
+                  >
+                    <XMarkIcon className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {advancedFilters.hasSpeed && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Has Speed
+                  <button
+                    onClick={() => onAdvancedFiltersChange({ ...advancedFilters, hasSpeed: false })}
+                    className="ml-1 hover:text-red-600"
+                  >
+                    <XMarkIcon className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+
+              {advancedFilters.sortOrder !== 'desc' && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Sort: {advancedFilters.sortOrder === 'asc' ? 'Lowest First' : 
+                         advancedFilters.sortOrder === 'name' ? 'Alphabetical' : 'Recently Updated'}
+                  <button
+                    onClick={() => onAdvancedFiltersChange({ ...advancedFilters, sortOrder: 'desc' })}
                     className="ml-1 hover:text-red-600"
                   >
                     <XMarkIcon className="h-3 w-3" />
