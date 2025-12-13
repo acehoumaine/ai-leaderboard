@@ -1,9 +1,9 @@
 // Syncs AI models from Artificial Analysis API to Supabase ai_models table
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 import type { BenchmarkScores } from '../../../../lib/types';
 
-export async function POST() {
+async function performSync() {
   const API_KEY = process.env.ARTIFICIAL_ANALYSIS_API_KEY;
   if (!API_KEY) {
     return NextResponse.json({ error: 'API key not set in environment.' }, { status: 500 });
@@ -83,4 +83,21 @@ export async function POST() {
   }
 }
 
-export const GET = () => NextResponse.json({ error: 'Use POST' }, { status: 405 });
+// POST handler for manual sync (from analytics page)
+export async function POST() {
+  return performSync();
+}
+
+// GET handler for cron job automation
+export async function GET(request: NextRequest) {
+  // Security check: Verify cron secret if set
+  const CRON_SECRET = process.env.CRON_SECRET;
+  if (CRON_SECRET) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${CRON_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+  
+  return performSync();
+}
