@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
                 Data Synchronization
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Sync model data from Artificial Analysis API to keep the leaderboard up to date.
+                Data syncs automatically every day. Use the button below to fetch the latest updates right now.
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -171,7 +171,7 @@ export default function AnalyticsPage() {
                   leftIcon={<ArrowPathIcon className="h-5 w-5" />}
                   className="flex-1 sm:flex-none"
                 >
-                  {syncing ? "Syncing Data..." : "Sync from API"}
+                  {syncing ? "Syncing..." : "Sync the Hottest Updates"}
                 </Button>
                 
                 {stats?.lastSyncTime && (
