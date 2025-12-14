@@ -71,6 +71,7 @@ async function performSync() {
           overall_intelligence: Number(overall_intelligence.toFixed(1)),
           benchmark_scores,
           source_id,
+          last_updated: new Date().toISOString(),
         }
       ], { onConflict: 'source_id' });
       if (!error) updated++;
