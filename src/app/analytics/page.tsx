@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
                 Data Synchronization
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Data syncs automatically every day. Use the button below to fetch the latest updates right now.
+                Data syncs automatically every day at 2 AM UTC. Use the button below to fetch the latest updates right now.
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
