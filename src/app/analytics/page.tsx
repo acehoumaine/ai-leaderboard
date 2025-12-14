@@ -77,15 +77,22 @@ export default function AnalyticsPage() {
           };
         }).sort((a, b) => b.count - a.count).slice(0, 5);
 
+        // Find the latest sync time (only from models that have last_updated set)
         const lastSync = models.reduce((latest, model) => {
-          const modelDate = model.last_updated ? new Date(model.last_updated) : new Date(0);
-          return modelDate > latest ? modelDate : latest;
+          if (!model.last_updated) return latest;
+          const modelDate = new Date(model.last_updated);
+          // Only update if this is a valid date and newer than current latest
+          if (!isNaN(modelDate.getTime()) && modelDate > latest) {
+            return modelDate;
+          }
+          return latest;
         }, new Date(0));
 
         setStats({
           totalModels,
           totalCompanies,
-          lastSyncTime: lastSync.toISOString(),
+          // Only set lastSyncTime if we found a valid date (not epoch)
+          lastSyncTime: lastSync.getTime() > 0 ? lastSync.toISOString() : null,
           recentUpdates,
           avgIntelligence,
           topCompanies: companyStats

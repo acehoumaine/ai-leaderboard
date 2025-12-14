@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 import type { BenchmarkScores } from '../../../../lib/types';
 
+// Force dynamic rendering to prevent caching issues with cron jobs
+export const dynamic = 'force-dynamic';
+
 async function performSync() {
   const API_KEY = process.env.ARTIFICIAL_ANALYSIS_API_KEY;
   if (!API_KEY) {
