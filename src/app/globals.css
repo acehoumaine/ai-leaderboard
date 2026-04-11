@@ -40,43 +40,6 @@
   --radius: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #f8fafc;
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
-    --border: #334155;
-    --input: #1e293b;
-    --primary: #3b82f6;
-    --primary-foreground: #ffffff;
-    --secondary: #1e293b;
-    --secondary-foreground: #f8fafc;
-    --accent: #1e293b;
-    --accent-foreground: #f8fafc;
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
-    --ring: #3b82f6;
-  }
-}
-
-.dark {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --border: #334155;
-  --input: #1e293b;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --ring: #3b82f6;
-}
 
 * {
   border-color: var(--border);
@@ -111,13 +74,6 @@ body {
   background: #94a3b8;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
 
 /* Focus styles */
 .focus-visible {
@@ -185,23 +141,10 @@ body {
   background-size: 200px;
 }
 
-.dark .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    #374151 0px,
-    #4b5563 40px,
-    #374151 80px
-  );
-  background-size: 200px;
-}
 
 /* Table enhancements */
 .table-hover tbody tr:hover {
   background-color: rgba(59, 130, 246, 0.05);
-}
-
-.dark .table-hover tbody tr:hover {
-  background-color: rgba(59, 130, 246, 0.1);
 }
 
 /* Typography improvements */
@@ -218,11 +161,6 @@ body {
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   background-color: rgba(255, 255, 255, 0.75);
   border: 1px solid rgba(209, 213, 219, 0.3);
-}
-
-.dark .glass {
-  background-color: rgba(17, 24, 39, 0.75);
-  border: 1px solid rgba(75, 85, 99, 0.3);
 }
 
 /* Loading states */

@@ -10,19 +10,15 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
   ({ className, variant = 'rectangular', width, height, lines = 1, ...props }, ref) => {
-    const baseClasses = 'animate-pulse bg-gray-200 dark:bg-gray-700';
-    
+    const baseClasses = 'animate-pulse bg-gray-100';
+
     if (variant === 'text' && lines > 1) {
       return (
         <div ref={ref} className={cn('space-y-2', className)} {...props}>
           {Array.from({ length: lines }).map((_, index) => (
             <div
               key={index}
-              className={cn(
-                baseClasses,
-                'h-4 rounded',
-                index === lines - 1 && 'w-3/4' // Last line is shorter
-              )}
+              className={cn(baseClasses, 'h-4 rounded', index === lines - 1 && 'w-3/4')}
             />
           ))}
         </div>
@@ -52,17 +48,16 @@ export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
 
 Skeleton.displayName = 'Skeleton';
 
-// Pre-built skeleton components for common use cases
 export const TableSkeleton = ({ rows = 5 }: { rows?: number }) => (
   <div className="space-y-3">
     {Array.from({ length: rows }).map((_, index) => (
       <div key={index} className="flex items-center space-x-4">
-        <Skeleton variant="circular" width={40} height={40} />
+        <Skeleton variant="circular" width={32} height={32} />
         <div className="flex-1 space-y-2">
           <Skeleton variant="text" />
-          <Skeleton variant="text" width="60%" />
+          <Skeleton variant="text" width="50%" />
         </div>
-        <Skeleton variant="text" width={80} />
+        <Skeleton variant="text" width={60} />
       </div>
     ))}
   </div>
@@ -78,9 +73,5 @@ export const CardSkeleton = () => (
       </div>
     </div>
     <Skeleton variant="text" lines={3} />
-    <div className="flex space-x-2">
-      <Skeleton variant="rectangular" width={80} height={32} />
-      <Skeleton variant="rectangular" width={80} height={32} />
-    </div>
   </div>
 );

@@ -11,18 +11,15 @@ export interface CardProps extends React.ComponentPropsWithoutRef<typeof motion.
 }
 
 const cardVariants = {
-  default: 'bg-white dark:bg-gray-900 shadow-sm',
-  elevated: 'bg-white dark:bg-gray-900 shadow-lg',
-  outlined: 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700'
+  default: 'bg-white shadow-sm',
+  elevated: 'bg-white shadow-lg',
+  outlined: 'bg-white border border-gray-200'
 };
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', hover = false, children, ...props }, ref) => {
     const motionProps = hover
-      ? {
-          whileHover: { y: -2, shadow: '0 10px 25px -3px rgba(0, 0, 0, 0.1)' },
-          transition: { duration: 0.2 }
-        }
+      ? { whileHover: { y: -2 }, transition: { duration: 0.2 } }
       : {};
 
     return (
@@ -47,36 +44,21 @@ Card.displayName = 'Card';
 
 export const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('px-6 py-4 border-b border-gray-200 dark:border-gray-700', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('px-6 py-4 border-b border-gray-200', className)} {...props} />
   )
 );
-
 CardHeader.displayName = 'CardHeader';
 
 export const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('px-6 py-4', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('px-6 py-4', className)} {...props} />
   )
 );
-
 CardContent.displayName = 'CardContent';
 
 export const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('px-6 py-4 border-t border-gray-200 bg-gray-50', className)} {...props} />
   )
 );
-
 CardFooter.displayName = 'CardFooter';
