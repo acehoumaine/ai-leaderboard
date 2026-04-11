@@ -2,6 +2,8 @@ export interface BenchmarkScores {
   speed?: number;
   latency?: number;
   price?: number;
+  price_input?: number;
+  price_output?: number;
   cost_efficiency?: number;
   coding?: number;
   math?: number;

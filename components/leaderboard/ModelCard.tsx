@@ -2,10 +2,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import {
-  HeartIcon as HeartOutline,
-} from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import type { AIModel } from '../../lib/types';
 import { getCompanyColor } from '../../lib/utils';
 import { formatMetricValue, getMetricDefinition } from '../../lib/metrics';
@@ -14,10 +10,6 @@ interface ModelCardProps {
   model: AIModel;
   rank: number;
   selectedMetric: string;
-  isSelected?: boolean;
-  isFavorite?: boolean;
-  onSelect?: (model: AIModel) => void;
-  onToggleFavorite?: (modelId: string) => void;
   className?: string;
 }
 
@@ -25,10 +17,6 @@ export const ModelCard: React.FC<ModelCardProps> = ({
   model,
   rank,
   selectedMetric,
-  isSelected = false,
-  isFavorite = false,
-  onSelect,
-  onToggleFavorite,
   className = ''
 }) => {
   const metricDef = getMetricDefinition(selectedMetric);
@@ -44,16 +32,9 @@ export const ModelCard: React.FC<ModelCardProps> = ({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: Math.min(rank * 0.02, 0.4) }}
-      className={`group relative ${className}`}
+      className={className}
     >
-      <div
-        className={`relative p-5 bg-white rounded-xl border transition-all duration-200 cursor-pointer ${
-          isSelected
-            ? 'border-blue-500 shadow-md ring-1 ring-blue-500/20'
-            : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-        }`}
-        onClick={() => onSelect?.(model)}
-      >
+      <div className="relative p-5 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200">
         {/* Rank Badge */}
         <div className="absolute -top-2.5 -left-2.5 z-10">
           <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow ${
@@ -69,25 +50,10 @@ export const ModelCard: React.FC<ModelCardProps> = ({
           </div>
         </div>
 
-        {/* Favorite Button */}
-        <button
-          className="absolute top-3 right-3 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-gray-50 transition-all"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleFavorite?.(model.id);
-          }}
-        >
-          {isFavorite ? (
-            <HeartSolid className="h-4 w-4 text-red-500" />
-          ) : (
-            <HeartOutline className="h-4 w-4 text-gray-400 hover:text-red-400" />
-          )}
-        </button>
-
         <div className="space-y-3 mt-1">
           {/* Name + Company */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 truncate pr-6">
+            <h3 className="text-sm font-semibold text-gray-900 truncate">
               {model.name}
             </h3>
             <span className={`inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium ${getCompanyColor(model.company)}`}>

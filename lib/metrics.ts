@@ -33,9 +33,29 @@ export const METRIC_DEFINITIONS: Record<string, MetricDefinition> = {
   },
   price: {
     key: 'price',
-    name: 'Price per 1M Tokens',
+    name: 'Price per 1M Tokens (Blended)',
     shortName: 'Price',
-    description: 'Cost per million tokens (blended input/output)',
+    description: 'Blended cost per million tokens assuming a 3:1 input-to-output token ratio',
+    unit: 'USD',
+    formatter: formatCurrency,
+    higherIsBetter: false,
+    category: 'efficiency'
+  },
+  price_input: {
+    key: 'price_input',
+    name: 'Price per 1M Input Tokens',
+    shortName: 'Input Price',
+    description: 'Cost per million input (prompt) tokens as listed by the provider',
+    unit: 'USD',
+    formatter: formatCurrency,
+    higherIsBetter: false,
+    category: 'efficiency'
+  },
+  price_output: {
+    key: 'price_output',
+    name: 'Price per 1M Output Tokens',
+    shortName: 'Output Price',
+    description: 'Cost per million output (completion) tokens as listed by the provider',
     unit: 'USD',
     formatter: formatCurrency,
     higherIsBetter: false,

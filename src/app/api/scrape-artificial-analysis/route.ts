@@ -33,6 +33,8 @@ export async function POST() {
       const speed = model.median_output_tokens_per_second;
       const latency = model.median_time_to_first_token_seconds;
       const price = model.pricing?.price_1m_blended_3_to_1;
+      const price_input = model.pricing?.price_1m_input_tokens;
+      const price_output = model.pricing?.price_1m_output_tokens;
       const source_id = (model.id || '').trim();
       const cost_efficiency = price && price > 0 ? Number((1 / price).toFixed(3)) : undefined;
       const math = model.evaluations?.artificial_analysis_math_index;
@@ -48,6 +50,8 @@ export async function POST() {
         speed: speed !== undefined && speed !== null ? Number(speed.toFixed(1)) : undefined,
         latency: latency !== undefined && latency !== null ? Number(latency.toFixed(1)) : undefined,
         price: price !== undefined && price !== null ? Number(price.toFixed(3)) : undefined,
+        price_input: price_input !== undefined && price_input !== null ? Number(price_input.toFixed(3)) : undefined,
+        price_output: price_output !== undefined && price_output !== null ? Number(price_output.toFixed(3)) : undefined,
         cost_efficiency,
         coding: coding !== undefined && coding !== null ? Number(coding.toFixed(1)) : undefined,
         math: math !== undefined && math !== null ? Number(math.toFixed(1)) : undefined,

@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
 import {
   ViewColumnsIcon,
   Squares2X2Icon,
   ArrowPathIcon,
-  HeartIcon,
   ArrowDownTrayIcon,
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 import { supabase } from "../../lib/supabase";
 import type { AIModel } from "../../lib/types";
-import { useLocalStorage } from "../../lib/hooks/useLocalStorage";
 import { formatRelativeTime, getCompanyColor } from "../../lib/utils";
 import { formatMetricValue, METRIC_DEFINITIONS } from "../../lib/metrics";
 
@@ -73,14 +71,8 @@ export default function Home() {
     sortOrder: 'desc',
   });
 
-  const [favoriteModels, setFavoriteModels] = useLocalStorage<string[]>('favorite-models', []);
-  const [, setLastVisited] = useLocalStorage<string>('last-visited', '');
-  const setLastVisitedRef = useRef(setLastVisited);
-  setLastVisitedRef.current = setLastVisited;
-
   useEffect(() => {
     fetchData();
-    setLastVisitedRef.current(new Date().toISOString());
   }, []);
 
   async function fetchData() {
@@ -244,14 +236,6 @@ export default function Home() {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [showExportDropdown]);
-
-  const toggleFavorite = (modelId: string) => {
-    setFavoriteModels(prev =>
-      prev.includes(modelId)
-        ? prev.filter(id => id !== modelId)
-        : [...prev, modelId]
-    );
-  };
 
   const exportToCSV = () => {
     const headers = ['Rank', 'Model', 'Company', 'Score', 'Description'];
@@ -490,8 +474,6 @@ export default function Home() {
                     model={model}
                     rank={(page - 1) * PAGE_SIZE + index + 1}
                     selectedMetric={selectedMetric}
-                    isFavorite={favoriteModels.includes(model.id)}
-                    onToggleFavorite={toggleFavorite}
                   />
                 ))}
               </AnimatePresence>
@@ -513,8 +495,6 @@ export default function Home() {
                       </th>
                       <th className="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         {selectedDef?.shortName || 'Score'}
-                      </th>
-                      <th className="px-5 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
                       </th>
                     </tr>
                   </thead>
@@ -556,14 +536,6 @@ export default function Home() {
                             <span className="font-semibold text-sm tabular-nums text-gray-900">
                               {formatMetricValue(selectedMetric, score)}
                             </span>
-                          </td>
-                          <td className="px-5 py-3.5">
-                            <button
-                              onClick={() => toggleFavorite(model.id)}
-                              className="p-1 rounded hover:bg-gray-100 transition-colors"
-                            >
-                              <HeartIcon className={`h-4 w-4 ${favoriteModels.includes(model.id) ? 'fill-red-500 text-red-500' : 'text-gray-300 hover:text-gray-400'}`} />
-                            </button>
                           </td>
                         </tr>
                       );
